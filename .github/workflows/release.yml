@@ -1,0 +1,66 @@
+name: Build Installer on Push
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Static Assets
+        shell: bash
+        run: curl -L "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml-full.js" -o "mathjax.min.js"
+
+      - name: Prepare Application Icon
+        shell: bash
+        run: |
+          curl -L "https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f5bc.png" -o "app_icon.png"
+          magick app_icon.png -define icon:auto-resize=64,48,32,16 app_icon.ico
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
+      - name: Generate Version
+        id: versioning
+        shell: bash
+        run: |
+          # 简单的版本号提取与更新
+          VERSION_LINE=$(grep '^version\s*=' Cargo.toml | head -n 1)
+          BASE_VERSION=$(echo "$VERSION_LINE" | sed -E 's/version\s*=\s*"([0-9]+\.[0-9]+).*/\1/')
+          [ -z "$BASE_VERSION" ] && BASE_VERSION="1.0"
+          
+          echo "BUILD_VERSION=${BASE_VERSION}.${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Update Cargo.toml
+        shell: bash
+        run: sed -i "s/^version = \".*\"/version = \"$BUILD_VERSION\"/" Cargo.toml
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Binary
+        run: cargo build --release --verbose
+
+      - name: Compile Installer
+        shell: cmd
+        run: |
+          mkdir Output
+          iscc "/DMyAppVersion=%BUILD_VERSION%" "/OOutput" "/FMd2Png_Setup_v%BUILD_VERSION%" installer.iss
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Md2Png_Setup_v${{ env.BUILD_VERSION }}
+          path: Output/*.exe
