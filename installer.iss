@@ -19,18 +19,18 @@ ArchitecturesInstallIn64BitMode=x64
 ChangesAssociations=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
 AppMutex=Md2PngMutex
+SetupIconFile=app_icon.ico
 
 [Files]
 Source: "target\release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "app_icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 ; 右键菜单：背景 (剪贴板模式) - 中文
 Root: HKCR; Subkey: "Directory\Background\shell\{#MyAppName}"; ValueType: string; ValueData: "粘贴 Markdown 为图片"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\{#MyAppName}"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\app_icon.ico"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "Directory\Background\shell\{#MyAppName}"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "Directory\Background\shell\{#MyAppName}\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletekey
 
 ; 右键菜单：.md文件 (文件模式) - 中文
 Root: HKCR; Subkey: "SystemFileAssociations\.md\shell\{#MyAppName}"; ValueType: string; ValueData: "转换为图片"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "SystemFileAssociations\.md\shell\{#MyAppName}"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\app_icon.ico"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "SystemFileAssociations\.md\shell\{#MyAppName}"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "SystemFileAssociations\.md\shell\{#MyAppName}\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey
