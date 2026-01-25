@@ -51,7 +51,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build Binary
-        run: cargo build --release --verbose
+        run: cargo build --release
 
       - name: Compile Installer
         shell: cmd
