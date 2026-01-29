@@ -5,7 +5,7 @@
 #endif
 
 [Setup]
-AppId={{B927D793-1234-5678-9012-ABCDEF123456}
+AppId={{31ef64cc-e01b-437b-92a8-f153afb8b817}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\{#MyAppName}
