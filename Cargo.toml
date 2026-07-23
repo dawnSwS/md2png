@@ -1,0 +1,28 @@
+[package]
+name = "md2png"
+version = "2.0.0"
+edition = "2021"
+description = "A pure Rust Markdown to PNG renderer powered by Typst"
+
+[dependencies]
+arboard = "3.6.1"
+msgbox = "0.7.0"
+winreg = "0.56.0"
+pulldown-cmark = { version = "0.13.4", default-features = false }
+tex2typst-rs = "0.1"
+typst = "0.15.0"
+typst-layout = "0.15.0"
+typst-render = "0.15.0"
+typst-assets = "0.15.0"
+comemo = "0.5.1"
+image = "0.25.10"
+
+[build-dependencies]
+winres = "0.1.12"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true
+panic = "abort"
+

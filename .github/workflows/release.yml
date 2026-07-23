@@ -1,0 +1,46 @@
+name: Build Native Engine Installer
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Application Icon
+        shell: bash
+        run: |
+          curl -sSL "https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/128/emoji_u1f5bc.png" -o app_icon.png
+          magick app_icon.png -define icon:auto-resize=64,48,32,16 app_icon.ico
+
+      - name: Update Version
+        shell: bash
+        run: |
+          BASE_VERSION=$(grep -m1 '^version\s*=' Cargo.toml | sed -E 's/version\s*=\s*"([0-9]+\.[0-9]+).*/\1/')
+          BUILD_VERSION="${BASE_VERSION:-2.0}.${{ github.run_number }}"
+          echo "BUILD_VERSION=$BUILD_VERSION" >> $GITHUB_ENV
+          sed -i "s/^version = \".*\"/version = \"$BUILD_VERSION\"/" Cargo.toml
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Binary
+        run: cargo build --release
+
+      - name: Compile Installer
+        shell: cmd
+        run: iscc "/DMyAppVersion=%BUILD_VERSION%" "/OOutput" "/FMd2Png_Setup_v%BUILD_VERSION%" installer.iss
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Md2Png_Setup_v${{ env.BUILD_VERSION }}
+          path: Output/*.exe
+          retention-days: 7
+
